@@ -15,16 +15,48 @@ jobs:
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8]
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-         uses: actions/setup-python@v2
-         with:
-           python-version: ${{ matrix.python-version }}
-      - name: Install dependecies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Test with pytest
-        run: |
-          pytest
+    - uses: actions/checkout@v2
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2.2.2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependecies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Test with pytest
+      run: |
+        pytest
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v2.3.4
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1.2.0
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1.3.0
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2.5.0
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: reinaldoossuna/python-helloworld:latest
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+        
+ 
