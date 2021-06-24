@@ -52,7 +52,7 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/python-helloworld:latest
+          tags: reinaldoossuna/python-helloworld:latest
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
